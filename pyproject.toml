@@ -6,7 +6,7 @@ authors = ["Yoshihide Yamato"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = "3.8"
 numpy = "^1.22.2"
 ipython = "^8.1.1"
 Cython = "^0.29.28"
