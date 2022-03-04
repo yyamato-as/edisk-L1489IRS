@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "edisk-l1489irs"
+version = "0.1.0"
+description = ""
+authors = ["Yoshihide Yamato"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+numpy = "^1.22.2"
+ipython = "^8.1.1"
+Cython = "^0.29.28"
+pytest = "^7.0.1"
+pandas = "^1.4.1"
+scipy = "^1.8.0"
+matplotlib = "^3.5.1"
+astropy = "^5.0.1"
+astroquery = "^0.4.5"
+emcee = "^3.1.1"
+corner = "^2.2.1"
+uvplot = "^0.2.11"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
