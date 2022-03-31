@@ -16,7 +16,7 @@ prefix = (
 )
 ext = ".pbcor.tt0.fits"
 
-statfile = "./L1489IRS_cont_statistics.pkl"
+statfile = "/raid/work/yamato/eDisk_data/L1489IRS/analysis_data/L1489IRS_cont_statistics.pkl"
 with open(statfile, "rb") as f:
     stat = pickle.load(f)
 

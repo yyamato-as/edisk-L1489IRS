@@ -34,9 +34,11 @@ ipykernel = "*"
 uvplot = "*"
 galario = {git = "https://github.com/yyamato-as/galario.git"}
 casaplotms = "*"
+multiprocess = "*"
 
 [dev-packages]
 black = "*"
+ipympl = "*"
 
 [requires]
 python_version = "3.8"

@@ -25,20 +25,21 @@ def emcee_run_wrapper(
     nwalker=200,
     nstep=500,
     nburnin=100,
-    relative_error=1e-4,
+    initial_blob_mag=1e-4,
     get_sample=True,
     get_blobs=False,
     discard=False,
     pool=None,
     blobs_dtype=None,
+    nthread=None
 ):
     # set dimension and initial guesses
     ndim = len(initial_state)
-    p0 = (1 + relative_error * np.random.randn(nwalker, ndim)) * initial_state
+    p0 = initial_state + initial_blob_mag * np.random.randn(nwalker, ndim)
 
     # set smapler
     sampler = emcee.EnsembleSampler(
-        nwalker, ndim, log_probability, pool=pool, blobs_dtype=blobs_dtype
+        nwalker, ndim, log_probability, pool=pool, blobs_dtype=blobs_dtype, threads=nthread,
     )
 
     # run
