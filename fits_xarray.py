@@ -365,7 +365,7 @@ class FitsDataArray:
 
         # step1 - intermediate coordinate to (phi, theta)
         phi = np.degrees(np.arctan2(xx, -yy))
-        R_th = np.sqrt(xx ** 2 + yy ** 2)
+        R_th = np.sqrt(xx**2 + yy**2)
         theta = np.degrees(np.arccos(np.pi / 180.0 * R_th))
 
         # step2 - (phi, theta) -> (alpha, delta) (i.e., RA, Dec)
