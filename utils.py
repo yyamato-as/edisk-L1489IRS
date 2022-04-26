@@ -224,4 +224,3 @@ class pyplotms:
                 self.data['{:s}_{}'.format(self.iteraxis, idx)] = data
             
                 
-     
