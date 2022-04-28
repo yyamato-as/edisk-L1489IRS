@@ -164,16 +164,16 @@ def FourthPowerGaussianRing1d(r, r0, F, sigma):
 
 ### fits relevant ###
 
-def fetch_beam_info(fits_filename, pa_rotate=False):
+def fetch_beam_info(header, pa_rotate=False):
     """Fetch the beam information in a FITS file.
 
     Args:
-        fits_filename (str): FITS file path.
+        header (str): FITS header.
 
     Returns:
         tuple: beam info in units of arcsec.
     """
-    header = fits.getheader(fits_filename)
+    # header = fits.getheader(fits_filename)
     bmaj = header['BMAJ']*3600
     bmin = header['BMIN']*3600
     bpa = header['BPA']
@@ -188,10 +188,15 @@ def measure_rms(data, mask):
     rms = calc_rms(data * mask)
     return rms
 
-def generate_simple_mask(fitsfile, emission_channel, excludechan=False, center_coord=(0.,0.), cutout=None, r_out=1000.):
-    header = fits.getheader(fitsfile)
-    data = fits.getdata(fitsfile).squeeze()
+def get_corresp_channels(axis, val):
+    return np.argmin(np.abs(axis-val))
 
+def generate_simple_mask(header, data, emission_channel, excludechan=False, center_coord=(0.,0.), cutout=None, r_out=1000.):
+    # header = fits.getheader(fitsfile)
+    # data = fits.getdata(fitsfile).squeeze()
+
+    print("Generating mask...")
+    
     x, y = get_radec_coord(header, center_coord=center_coord)
     xx, yy = np.meshgrid(x, y)
     r = np.sqrt(xx**2 + yy**2)
@@ -218,9 +223,9 @@ def generate_simple_mask(fitsfile, emission_channel, excludechan=False, center_c
     return mask
 
 
-def generate_mom0(fitsfile, mask, cutout=None):
-    header = fits.getheader(fitsfile)
-    data = fits.getdata(fitsfile).squeeze()
+def generate_mom0(header, data, mask, cutout=None):
+    # header = fits.getheader(fitsfile)
+    # data = fits.getdata(fitsfile).squeeze()
 
     if cutout is not None:
         data = data[cutout]
@@ -235,21 +240,35 @@ def generate_mom0(fitsfile, mask, cutout=None):
 
     rms = measure_rms(data, mask)
 
-    print("Collapsing {} for moment 0...".format(fitsfile))
+    print("Collapsing into moment 0...")
     M0 = np.trapz(masked_data, dx=dchan, axis=0)
     dM0 = dchan * rms * nchan ** 0.5 * np.ones(M0.shape)
     
     return M0, dM0
 
-def generate_mom8(fitsfile, mask, cutout=None):
-    data = fits.getdata(fitsfile).squeeze()
+def generate_mom1(header, data, mask, sigma_threshold=3):
+    v = get_spectral_coord(header, which='vel')
+    
+    masked_data = data * mask
+    rms = measure_rms(data, ~mask)
+    masked_data[masked_data < sigma_threshold * rms] = 0.0
+
+    vcube = v[:, None, None] * np.ones(masked_data.shape)
+    weights = np.where(masked_data != 0.0, masked_data, 1e-10 * np.random.rand(masked_data.size).reshape(masked_data.shape)) # to avoid zero division error
+    M1 = np.average(vcube, weights=weights, axis=0)
+    npix = np.sum(masked_data != 0.0, axis=0)
+    M1 = np.where(npix >= 1.0, M1, np.nan)
+    return M1
+
+def generate_mom8(data, mask, cutout=None):
+    # data = fits.getdata(fitsfile).squeeze()
 
     if cutout is not None:
         data = data[cutout]
 
     masked_data = data * mask
 
-    print("Collapsing {} for moment 8...".format(fitsfile))
+    print("Collapsing into moment 8...")
     M8 = np.nanmax(masked_data, axis=0)
     
     return M8
@@ -381,7 +400,7 @@ def plot_2D_map(
     # colorbar
     if colorbar:
         divider = make_axes_locatable(ax)
-        cax = divider.append_axes(position="right", size="5%", axes_class=maxes.Axes, pad=0.25)
+        cax = divider.append_axes(position="right", size="5%", axes_class=maxes.Axes, pad=0.1)
         extend = set_colorbar_extend(image, data)
         fig = ax.get_figure()
         fig.colorbar(image, cax=cax, extend=extend, **cbar_kw)
@@ -689,6 +708,9 @@ def FWHM_to_sigma(FWHM):
     return FWHM / np.sqrt(8 * np.log(2))
 
 #def slice_image(data, xlim=(), ylim=(), zlim=()):
+
+# def calc_rms(data, axis=None):
+
     
 
 def calc_rms(data, axis=None, ignore_zero=True, sigma_th=1.0):

@@ -20,8 +20,15 @@ emcee = "^3.1.1"
 corner = "^2.2.1"
 uvplot = "^0.2.11"
 galario = {git = "https://github.com/yyamato-as/galario.git", rev = "main"}
+regions = "^0.6"
+casatasks = "^6.4.4"
+casatools = "^6.4.4"
+casadata = "^2022.1.17"
+bettermoments = "^1.6.3"
+seaborn = "^0.11.2"
 
 [tool.poetry.dev-dependencies]
+black = "^22.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

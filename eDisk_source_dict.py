@@ -2,11 +2,12 @@
 source_dict = {
     "L1489IRS": {
         "radec": "04h04m43.08s 26d18m56.10s",
+        "distance": 140,
         "v_sys": 7.3, # LSR systemic velocity in km/s; Sai et al. 2020
         "emission_extent": {"12CO": (-6.0, 22),
                             "13CO": (-0.20, 14),
                             "C18O": (1.6, 12.8),
-                            "SO": (4.3, 10.7)} # measured on casaviewer by eye in robust=0.5 images
+                            "SO": (4.3, 10.7)} # inspected on casaviewer by eye in robust=0.5 images
     },
     "IRAS04169": {
         "radec": "04h19m58.449s  27d09m56.936s", # Takakuwa et al. 2018 (2D Gaussian fit)
