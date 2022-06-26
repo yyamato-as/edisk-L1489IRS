@@ -1,13 +1,16 @@
 # ver0; based on SourceList_noCam_sai.pdf
 source_dict = {
     "L1489IRS": {
-        "radec": "04h04m43.08s 26d18m56.10s",
-        "distance": 140,
-        "v_sys": 7.3, # LSR systemic velocity in km/s; Sai et al. 2020
-        "emission_extent": {"12CO": (-6.0, 22),
-                            "13CO": (-0.20, 14),
-                            "C18O": (1.6, 12.8),
-                            "SO": (4.3, 10.7)} # inspected on casaviewer by eye in robust=0.5 images
+        # "radec": "04h04m43.08s 26d18m56.10s",
+        "radec": '4h04m43.07997408s 26d18m56.11868681s', # updated 2022.06.08 based on 2D gaussian fit on the image plane
+        "distance": 146, # Roccatagliata et al. 2020
+        "PA": 67.2, # from visibility fit
+        "incl": 70.6, # from visibility fit
+        "v_sys": 7.22, # LSR systemic velocity in km/s; Sai et al. 2020
+        "emission_extent": {"12CO": (-13.0, 27), # updated 2022.06.19 based on inspection on the channel map
+                            "13CO": (-2.0, 16), # updated 2022.06.19 based on inspection on the channel map
+                            "C18O": (-1.0, 15), # updated 2022.06.19 based on inspection on the channel map
+                            "SO": (-8, 22)} # inspected on casaviewer by eye in robust=0.5 images
     },
     "IRAS04169": {
         "radec": "04h19m58.449s  27d09m56.936s", # Takakuwa et al. 2018 (2D Gaussian fit)

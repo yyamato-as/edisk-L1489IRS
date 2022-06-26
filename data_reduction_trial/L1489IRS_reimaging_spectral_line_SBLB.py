@@ -6,7 +6,7 @@ import glob
 import numpy as np
 import sys
 import pickle
-execfile('/home/yamato/Project/edisk/reduction_utils3.py', globals())
+execfile('/home/yamato/Project/eDisk/reduction_script/reduction_utils3.py', globals())
 
 
 ###############################################################
@@ -27,7 +27,7 @@ field   = 'L1489IRS'
 prefix  = 'L1489IRS' 
 
 ### always include trailing slashes!!
-WD_path = '/raid/work/yamato/edisk_data/L1489IRS/v0_image/'
+WD_path = '/raid/work/yamato/edisk_data/L1489IRS/custom_images/'
 SB_path = WD_path+'SB/'
 LB_path = WD_path+'LB/'
 
@@ -72,19 +72,29 @@ phasecenter='J2000 04h04m43.080s 26d18m56.104s'
 
 ### Dictionary defining the spectral line imaging parameters.
 image_list = {
-        ### 12CO images
-      #   "12CO":dict(chanstart='-100.0km/s', chanwidth='0.635km/s', 
-      #       nchan=315, linefreq='230.538GHz', linespw='6',
-      #       robust=[0.5],imsize=4000,cellsize='0.01arcsec',uvtaper=['2000klambda']),
-          "SO": dict(chanstart="-10.0km/s", chanwidth="0.200km/s", 
-            nchan=170, linefreq="219.94944200GHz", linespw='2',
-            robust=[0.5],imsize=4000,cellsize='0.01arcsec',uvtaper=['2000klambda'])
-        }
+        # ### 12CO images
+        # "12CO":dict(chanstart='-13.0km/s', chanwidth='0.8km/s', 
+        #     nchan=51, linefreq='230.538GHz', linespw='6',
+        #     robust=[0.5, 1.0, 2.0],imsize=4000,cellsize='0.01arcsec',uvtaper=['2000klambda']),
+        ### 13CO images
+        "13CO":dict(chanstart='-2.0km/s', chanwidth='0.2km/s', 
+            nchan=91, linefreq='220.39868420GHz', linespw='1',
+            robust=[1.0, 0.5, 2.0],imsize=4000,cellsize='0.01arcsec',uvtaper=['2000klambda']),
+        # ### C18O
+        # "C18O":dict(chanstart='-1.0km/s', chanwidth='0.2km/s',
+        #     nchan=81, linefreq='219.56035410GHz', linespw='3',
+        #     robust=[0.5, 1.0, 2.0],imsize=4000,cellsize='0.01arcsec',uvtaper=['2000klambda']),
+        # ### SO Images
+        # "SO":dict(chanstart='-8.0km/s', chanwidth='0.2km/s', 
+        #     nchan=150, linefreq='219.94944200GHz', linespw='2',
+        #     robust=[-2.0, -1.0, 0.0, 0.5, 1.0, 2.0], imsize=4000, cellsize='0.01arcsec',uvtaper=['2000klambda']),
+       }
 
 for line in image_list:
     print(line)
     for robust in image_list[line]["robust"]:
-        imagename = prefix+f'_SBLB_'+line+'_robust_'+str(robust)
+        imagename = prefix+f'_SBLB_'+line+'_robust_'+str(robust) + "_dv{:s}".format(image_list[line]["chanwidth"].replace("km/s", ""))
+        print(imagename)
         sigma = get_sensitivity_nodata_params(vislist, cont_spws, specmode='cube', \
                 spw=[image_list[line]["linespw"]], chan=450,robust=robust,)
         tclean_spectral_line_wrapper(vislist, imagename,
@@ -120,7 +130,8 @@ os.system('rm -rf *.residual* *.psf* *.model* *dirty* *.sumwt* *.gridwt* *.workd
 ### Remove fits files and pbcor files from previous iterations. 
 os.system("rm -rf *.pbcor* *.fits") 
 
-imagelist=glob.glob('*.image') + glob.glob('*.image.tt0')
+imagelist=glob.glob('*_dv*.image')# + glob.glob('*.image.tt0')
+selectedVis = "vis"
 for image in imagelist:
    if selectedVis=='vis_shift':
        immath(imagename=[image,image.replace('image', 'pb')],expr='IM0/IM1',outfile=image.replace('image', 'pbcor'),imagemd=image)
