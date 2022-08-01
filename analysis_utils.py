@@ -20,14 +20,16 @@ figurepath = "./figure/"
 analysisdatapath = "./data/"
 
 # prefix for various file names
-def get_prefix(source, baseline, line, robust=0.5, other=None):
+def get_prefix(source, baseline, line, robust=0.5, dv=None, other=None):
     prefix = "{:s}_{:s}_{:s}_robust_{:.1f}".format(source, baseline, line, robust)
+    if dv is not None:
+        prefix += "_dv" + str(dv)
     if other is not None:
         prefix += "_" + other
     return prefix
 
 # image basename
-def get_image_basename(source, baseline, line, robust=0.5, other=None, type="image"):
+def get_image_basename(source, baseline, line, robust=0.5, dv=None, other=None, type="image"):
     """Fetch the fits image basename based on eDisk namin convention
 
     Parameters
@@ -48,7 +50,7 @@ def get_image_basename(source, baseline, line, robust=0.5, other=None, type="ima
     _type_
         _description_
     """
-    prefix = get_prefix(source, baseline, line, robust=robust, other=other)
+    prefix = get_prefix(source, baseline, line, robust=robust, dv=dv, other=other)
     imagename = prefix + ".{:s}.fits".format(type)
     if line == "continuum":
         imagename = imagename.replace(".fits", ".tt0.fits")

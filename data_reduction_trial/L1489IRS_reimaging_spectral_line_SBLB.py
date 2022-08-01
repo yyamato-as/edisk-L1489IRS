@@ -130,7 +130,7 @@ os.system('rm -rf *.residual* *.psf* *.model* *dirty* *.sumwt* *.gridwt* *.workd
 ### Remove fits files and pbcor files from previous iterations. 
 os.system("rm -rf *.pbcor* *.fits") 
 
-imagelist=glob.glob('*_dv*.image')# + glob.glob('*.image.tt0')
+imagelist=glob.glob('*13CO*.image')# + glob.glob('*.image.tt0')
 selectedVis = "vis"
 for image in imagelist:
    if selectedVis=='vis_shift':
