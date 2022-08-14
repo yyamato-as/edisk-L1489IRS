@@ -6,7 +6,7 @@ source_dict = {
         "distance": 146, # Roccatagliata et al. 2020
         "PA": 67.2, # from visibility fit
         "incl": 70.6, # from visibility fit
-        "v_sys": 7.22, # LSR systemic velocity in km/s; Sai et al. 2020
+        "vsys": 7.22, # LSR systemic velocity in km/s; Sai et al. 2020
         "emission_extent": {"12CO": (-13.0, 27), # updated 2022.06.19 based on inspection on the channel map
                             "13CO": (-2.0, 16), # updated 2022.06.19 based on inspection on the channel map
                             "C18O": (-1.0, 15), # updated 2022.06.19 based on inspection on the channel map
