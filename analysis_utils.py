@@ -15,7 +15,7 @@ datapath = "/raid/work/yamato/edisk_data/L1489IRS/"
 msfilepath = datapath + "eDisk_calibrated_data/"
 imageproductpath = datapath + "eDisk_image_products/"
 customimagepath = datapath + "custom_images/"
-VADPpath = "./VADP/"
+VADPpath = "./VADP_newDDT/"
 figurepath = "./figure/"
 analysisdatapath = "./data/"
 
@@ -139,6 +139,63 @@ def jypb_to_jypsr(I, beam):
     Omega_beam = get_beam_solid_angle(beam)
     return I / Omega_beam
 
+def jypsr_to_jypb(I, beam):
+    """Convert intensity in Jy / beam to Jy / sr.
+
+    Parameters
+    ----------
+    I : float or array_like
+        Intensity in Jy / beam.
+    beam : tuple
+        A tuple of beam size, i.e., (bmaj, bmin) in arcsec. 
+
+    Returns
+    -------
+    float or array_like
+        Intensity in Jy / sr.
+    """
+    Omega_beam = get_beam_solid_angle(beam)
+    return I * Omega_beam
+
+def cgs_to_jypb(I, beam):
+    """Convert intensity in Jy / beam to cgs unit. Jy = 1e-23 erg/s/cm2/Hz
+
+    Parameters
+    ----------
+    I : float or array_like
+        Intensity in Jy / beam.
+    beam : tuple
+        A tuple of beam size, i.e., (bmaj, bmin) in arcsec. 
+
+    Returns
+    -------
+    float or array_like
+        Intensity in erg s-1 cm-2 Hz-1 sr-1.
+    """
+    return jypsr_to_jypb(I, beam) / 1e-23
+
+def K_to_jypb(I, nu, beam):
+    """Convert intensity in Jy /beam to brightness temperature in Kelvin using full planck function.
+
+    Parameters
+    ----------
+    I : float or array_like
+        Intenisty in Jy /beam.
+    nu : flaot or array_like
+        Observing frequency in Hz.
+    beam : tuple
+        A tuple of beam size, i.e., (bmaj, bmin) in arcsec.
+
+    Returns
+    -------
+    float or array_like
+        Brightness temperature.
+    """
+
+
+
+
+
 def jypb_to_cgs(I, beam):
     """Convert intensity in Jy / beam to cgs unit. Jy = 1e-23 erg/s/cm2/Hz
 
@@ -200,6 +257,31 @@ def jypb_to_K(I, nu, beam):
         return np.where(T >= 0.0, T, -T)
     elif isinstance(I, float):
         return T if I >= 0.0 else -T
+
+def K_to_jypb(T, nu, beam):
+    """Convert intensity in Jy /beam to brightness temperature in Kelvin using full planck function.
+
+    Parameters
+    ----------
+    I : float or array_like
+        Intenisty in Jy /beam.
+    nu : flaot or array_like
+        Observing frequency in Hz.
+    beam : tuple
+        A tuple of beam size, i.e., (bmaj, bmin) in arcsec.
+
+    Returns
+    -------
+    float or array_like
+        Brightness temperature.
+    """
+    I = 2 * h * nu**3 / c**2 / (np.exp(h * nu / (k_B * np.abs(T))) - 1)
+    I = cgs_to_jypb(I, beam)
+
+    if isinstance(T, np.ndarray):
+        return np.where(I >= 0.0, I, -I)
+    elif isinstance(T, float):
+        return I if T >= 0.0 else -I
 
 def jypb_to_K_astropy(I, nu, beam):
     """Convert intensity in Jy /beam to brightness temperature in Kelvin using RJ approximation implemented in astropy.

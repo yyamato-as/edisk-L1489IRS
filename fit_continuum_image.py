@@ -14,11 +14,17 @@ source = "L1489IRS"
 config = "SBLB"
 imtype = "continuum"
 robust = 1.0
-imagename = au.imageproductpath + au.get_image_basename(
+path = "/works/yamato/eDisk/L1489IRS/ALMA_pipeline_calibrated_data/"
+# imagename = au.imageproductpath + au.get_image_basename(
+#     source, config, imtype, robust=robust
+# )
+imagename = path + au.get_image_basename(
     source, config, imtype, robust=robust
 )
 
+
 image = FitsImage(imagename)
+print(image.beam)
 
 
 ####################### MANUAL SETTINGS ###############################
@@ -50,6 +56,7 @@ with open(estimates_filename, "w") as f:
 # set model and residual file
 model_filename = au.analysisdatapath + filename_prefix + ".model"
 residual_filename = au.analysisdatapath + filename_prefix + ".residual"
+logfile = au.analysisdatapath + filename_prefix + ".log"
 
 # measure rms
 image.estimate_rms(rmin=8, rmax=10)
@@ -61,13 +68,14 @@ result, fig = imfit_wrapper(
     model=model_filename,
     residual=residual_filename,
     estimates=estimates_filename,
+    logfile=logfile,
     rms=image.rms,
     plot_result=True,
     plot_kw=dict(
         xlim=(-2, 2),
         ylim=(-2, 2),
-        cmap_method="pcolorfast",
-        cmap_kw=dict(cmap=au.cmap["cont"], norm=ContinuumNormalize(image.data)),
+        method="pcolorfast",
+        stretch=AsinhStretch(a=0.02)
     ),
 )
 

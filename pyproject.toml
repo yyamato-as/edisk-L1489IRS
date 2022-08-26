@@ -30,7 +30,9 @@ astro-eddy = "^2.1.4"
 lmfit = "^1.0.3"
 opencv-python = "^4.6.0"
 casaplotms = "^1.6.2"
+gofish = "^1.4.2"
 qdisk = {path = "../../qDisk"}
+disksurf = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

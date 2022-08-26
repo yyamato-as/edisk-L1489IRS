@@ -3,6 +3,7 @@ source_dict = {
     "L1489IRS": {
         # "radec": "04h04m43.08s 26d18m56.10s",
         "radec": '4h04m43.07997408s 26d18m56.11868681s', # updated 2022.06.08 based on 2D gaussian fit on the image plane
+        "rep_robust": 1.0,
         "distance": 146, # Roccatagliata et al. 2020
         "PA": 67.2, # from visibility fit
         "incl": 70.6, # from visibility fit
@@ -55,9 +56,15 @@ source_dict = {
         "radec": "15h43m02.23327s -034d09m06.943163s",
     },
     "IRAS16253": {
-        "radec": "16h28m21.615631s -24d36m24.32560s",
+        "radec": "16h28m21.616s -24d36m24.33s",
+        "PA": 113,
+        "incl": 70.6,
+        "rep_robust": 0.5
     },
     "CB68": {
-        "radec": "16h57m19.642s -16d09m24.018s",
+        "radec": "16h57m19.642s -16d09m24.03s",
+        "PA": 45, #?
+        "incl": 74,
+        "rep_robust": 1.0
     },
 }
