@@ -52,7 +52,7 @@ prefix  = 'L1489IRS'
 
 ### always include trailing slashes!!
 # WD_path = '/lustre/cv/projects/edisk/L1489IRS/'
-WD_path = '/works/yamato/eDisk/L1489IRS/ALMA_pipeline_calibrated_data/'
+WD_path = '/works/yamato/eDisk/L1489IRS/try2/'
 SB_path = WD_path+'SB/'
 LB_path = WD_path+'LB/'
 
@@ -201,9 +201,9 @@ data_params = {'SB1': {'vis': WD_path+prefix+'_SB1.ms',
 #save data params to a pickle
 with open(prefix+'.pickle', 'wb') as handle:
     pickle.dump(data_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
-#load data params from the pickle
-with open(prefix+'.pickle', 'rb') as handle:
-   data_params = pickle.load(handle)
+# load data params from the pickle
+# with open(prefix+'.pickle', 'rb') as handle:
+#    data_params = pickle.load(handle)
 
 
 

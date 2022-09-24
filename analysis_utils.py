@@ -329,6 +329,7 @@ def FourthPowerGaussianRing1d(r, r0, F, sigma):
 def PowerLaw(r, F, p):
     return 10 ** F * r ** p
     
+# def Nuker1d(r, )
 
 ######################### DEPRECATED ####################################
 ### fits relevant ###

@@ -31,8 +31,11 @@ lmfit = "^1.0.3"
 opencv-python = "^4.6.0"
 casaplotms = "^1.6.2"
 gofish = "^1.4.2"
-qdisk = {path = "../../qDisk"}
 disksurf = "^1.1.2"
+h5py = "^3.7.0"
+pysftp = "^0.2.9"
+paramiko = "^2.11.0"
+qdisk = {path = "../../qDisk"}
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

@@ -1,11 +1,10 @@
-from fileinput import filename
-from multiprocessing.sharedctypes import Value
 import numpy as np
 import casatools 
 from scipy import stats
 import astropy.constants as ac
 import astropy.units as u
 from astropy.coordinates import SkyCoord
+import matplotlib.pyplot as plt
 
 c = ac.c.to(u.m/u.s).value
 arcsec_to_deg = 1. / 3600.
@@ -204,18 +203,18 @@ class Visibility():
         uvvals = np.average([uvbins[1:], uvbins[:-1]], axis=0)
 
         if stat_type == "mean":
-            vals = binned_statistic_2D(self.u, self.v, self.V, statistic=np.nanmean, bins=uvbins)
+            vals = binned_statistic_2D(self.v, self.u, self.V, statistic=np.nanmean, bins=uvbins)
             if uncertainty_type == "stderr":
-                errs = binned_statistic_2D(self.u, self.v, self.V, statistic=stderr, bins=uvbins)
+                errs = binned_statistic_2D(self.v, self.u, self.V, statistic=stderr, bins=uvbins)
             elif uncertainty_type == "errprop":
-                errs = binned_statistic_2D(self.u, self.v, self.weight, statistic=mean_err, bins=uvbins)
+                errs = binned_statistic_2D(self.v, self.u, self.weight, statistic=mean_err, bins=uvbins)
 
         elif stat_type == "weighted_mean":
-            vals = binned_statistic_2D(self.u, self.v, self.V, weight=self.weight, statistic="weighted_mean", bins=uvbins)
+            vals = binned_statistic_2D(self.v, self.u, self.V, weight=self.weight, statistic="weighted_mean", bins=uvbins)
             if uncertainty_type == "stderr":
-                errs = binned_statistic_2D(self.u, self.v, self.V, statistic=stderr, bins=uvbins)
+                errs = binned_statistic_2D(self.v, self.u, self.V, statistic=stderr, bins=uvbins)
             elif uncertainty_type == "errprop":
-                errs = binned_statistic_2D(self.u, self.v, self.weight, statistic=weighted_mean_err, bins=uvbins)
+                errs = binned_statistic_2D(self.v, self.u, self.weight, statistic=weighted_mean_err, bins=uvbins)
 
         # make arrays flatten
         u, v = np.meshgrid(uvvals, uvvals)
@@ -234,6 +233,24 @@ class Visibility():
             self.weight = np.ascontiguousarray(1. / errs**2)
         else:
             return uvals, vvals, vals, errs
+
+    def plot_uvprofile(self, axes=None, binsize=10e3, uvrange=None, stat_type="weighted_mean", uncertainty_type="errprop", errorbar=True, **kwargs):
+
+        if axes is None:
+            fig, axes = plt.subplots(2, 1, figsize=(4, 8), sharex=True)
+
+        uv, vals, errs = self.bin_1D(binsize=binsize, uvrange=uvrange, stat_type=stat_type, uncertainty_type=uncertainty_type)
+
+        for ax, v, e in zip(axes, [vals.real, vals.imag], [errs.real, errs.imag]):
+            if errorbar:
+                ax.errorbar(uv, v, yerr=e, **kwargs)
+            else:
+                ax.plot(uv, v)
+
+        axes[0].set(ylabel="Real [Jy]", xscale="log")
+        axes[1].set(xlabel="Baseline [$\lambda$]", ylabel="Imaginary [Jy]", xscale="log")
+
+        return axes
 
 
     def _get_spwids(self):

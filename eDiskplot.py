@@ -6,6 +6,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 from astropy.visualization import ImageNormalize
 from qdisk.classes import FitsImage, PVFitsImage
 from matplotlib import ticker
+import matplotlib
 import matplotlib.patheffects as pe
 import numpy as np
 import scipy.constants as sc
@@ -18,7 +19,9 @@ plt.rcParams.update({
     "xtick.top": True,
     "ytick.right": True,
     "xtick.direction": "out",
-    "ytick.direction": "out"})
+    "ytick.direction": "out",
+    })
+
 
 ### color pallet
 from matplotlib import colors

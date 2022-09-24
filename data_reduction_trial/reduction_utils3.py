@@ -10,6 +10,10 @@ import numpy as np
 import numpy
 from casatools import table as tbtool
 from casatools import ms as mstool
+import casatools
+from casatasks import *
+
+tb = casatools.table()
 
 
 def LSRKvel_to_chan(msfile, field, spw, restfreq, LSRKvelocity):
@@ -1592,10 +1596,11 @@ def plot_deprojected(
     plt.xlabel("deprojected baseline length [kilo$\lambda$]")
     ax[0].set_ylabel("average real [Jy]")
     ax[1].set_ylabel("average imag [Jy]")
-    ax[0].legend()
+    # ax[0].legend()
     if outfile != "":
         plt.savefig(outfile, dpi=200.0)
-    plt.show(block=False)
+    # plt.show(block=False)
+    return fig
 
 
 def estimate_flux_scale(

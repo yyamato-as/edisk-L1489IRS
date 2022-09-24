@@ -5,6 +5,206 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 import numpy as np
 
+def setup_params(param_dict):
+
+    param_name = [
+        key for key in param_dict.keys() if not param_dict[key]["fixed"]
+    ]
+    fixed_param_name = [
+        key for key in param_dict.keys() if param_dict[key]["fixed"]
+    ]
+    bound = [
+        param_dict[key]["bound"]
+        for key in param_dict.keys()
+        if not param_dict[key]["fixed"]
+    ]
+    initial_state = [
+        param_dict[key]["p0"]
+        for key in param_dict.keys()
+        if not param_dict[key]["fixed"]
+    ]
+
+    return param_name, fixed_param_name, bound, initial_state
+
+class EmceeHammer:
+	def __init__(
+		self,
+		log_probability=None,
+		initial_state=None,
+		nwalker=200,
+		nstep=500,
+		initial_state_blob_mag=1e-4,
+	):
+
+		self.log_probability = log_probability
+		self.initial_state = initial_state
+		self.nwalker = nwalker
+		self.nstep = nstep
+
+		# set the initial position of each walker
+		if self.initial_state is not None:
+			self.initial_state = np.atleast_1d(self.initial_state)
+			self.ndim = self.initial_state.size
+			self.p0 = self.initial_state + initial_state_blob_mag * np.random.randn(self.nwalker, self.ndim)
+
+	def load_backend(self, filename="test.h5"):
+		self.sampler = emcee.backends.HDFBackend(filename)
+
+	def run(self, pool=None, progress=True, blobs_dtype=None, save=True, savefilename="test.h5"):
+		
+		backend = None
+
+		if save:
+			backend = emcee.backends.HDFBackend(savefilename)
+			backend.reset(self.nwalker, self.ndim)
+
+		# set sampler
+		self.sampler = emcee.EnsembleSampler(
+			self.nwalker,
+			self.ndim,
+			self.log_probability,
+			pool=pool,
+			blobs_dtype=blobs_dtype,
+			backend=backend
+		)
+
+		# run
+		print(
+			"starting to run the MCMC sampling with: \n \t initial state:",
+			self.initial_state,
+			"\n \t number of walkers:",
+			self.nwalker,
+			"\n \t number of steps:",
+			self.nstep,
+		)
+		self.sampler.run_mcmc(self.p0, int(self.nstep), progress=progress)
+
+	@property
+	def chain_length(self):
+		return self.sampler.get_chain().shape[0]
+
+	def get_sample(self, thin=1, nburnin=100, flat=False):
+		sample = self.sampler.get_chain(thin=thin, discard=nburnin, flat=flat)
+		return sample
+
+	def get_flat_sample(self, thin=1, nburnin=100):
+		return self.get_sample(thin=thin, nburnin=nburnin, flat=True)
+
+	def get_blobs(self, thin=1, nburnin=100, flat=False):
+		blobs = self.sampler.get_blobs(thin=thin, discard=nburnin, flat=flat)
+		return blobs
+
+	def get_flat_blobs(self, thin=1, nburnin=100):
+		return self.get_blobs(thin=thin, nburnin=nburnin, flat=True)
+
+	def get_log_prob(self, thin=1, nburnin=100, flat=False):
+		return self.sampler.get_log_prob(thin=thin, discard=nburnin, flat=flat)
+
+	def _concat_multiple_sample_arrays(*args, axis=0):
+		return np.concatenate(args, axis=axis)
+
+	def get_MAP_params(self, thin=1, nburnin=100, include_blobs=False):
+		MAP_params = self.get_flat_sample(thin=thin, nburnin=nburnin)[np.argmax(self.get_log_prob(thin=thin, nburnin=nburnin, flat=True))]
+		return MAP_params
+
+	def get_random_sample_params(self, thin=1, nburnin=100, nsample=50):
+		# get flat sample
+		full_sample = self.get_flat_sample(thin=thin, nburnin=nburnin)
+
+		# generate random number
+		rng = np.random.default_rng(20010714)
+		rints = rng.integers(low=0, high=full_sample.shape[0], size=nsample)
+
+		params = np.empty((nsample, full_sample.shape[1]))
+		for i, n in enumerate(rints):
+			params[i] = full_sample[n]
+		
+		return params
+
+
+
+		
+	def plot_corner(
+		self, thin=1, nburnin=100, include_blobs=False, labels=None, **kwargs
+	):
+		sample = self.get_flat_sample(thin=thin, nburnin=nburnin)
+		if include_blobs:
+			blobs = self.get_flat_blobs(thin=thin, nburnin=nburnin)
+			sample = self._concat_multiple_sample_arrays(sample, blobs, axis=1)
+
+		fig = corner.corner(
+			sample,
+			labels=labels,
+			quantiles=kwargs.get("quantiles", [0.16, 0.5, 0.84]),
+			show_titles=kwargs.get("show_titles", True),
+			bins=kwargs.get("bins", 20),
+			**kwargs
+		)
+
+		return fig
+		
+	def plot_walker(self, nburnin=100, labels=None, histogram=True):
+
+		sample = self.get_sample(thin=1, nburnin=0, flat=False).transpose(2, 0, 1)
+		# Cycle through the plots.
+
+		figset = []
+
+		for i, s in enumerate(sample):
+			fig, ax = plt.subplots()
+			for walker in s.T:
+				ax.plot(walker, alpha=0.1, color="k")
+			ax.set_xlabel("Step number")
+			if labels is not None:
+				ax.set_ylabel(labels[i])
+			if nburnin is not None:
+				ax.axvline(nburnin, ls="dotted", color="tab:blue")
+			ax.set_xlim(0, s.shape[0])
+
+			# Include the histogram.
+
+			if histogram:
+				fig.set_size_inches(
+					1.37 * fig.get_figwidth(), fig.get_figheight(), forward=True
+				)
+				ax_divider = make_axes_locatable(ax)
+				bins = np.linspace(ax.get_ylim()[0], ax.get_ylim()[1], 50)
+				hist, _ = np.histogram(s[nburnin:].flatten(), bins=bins, density=True)
+				bins = np.average([bins[1:], bins[:-1]], axis=0)
+				ax1 = ax_divider.append_axes("right", size="35%", pad="2%")
+				ax1.fill_betweenx(
+					bins, hist, np.zeros(bins.size), step="mid", color="darkgray", lw=0.0
+				)
+				ax1.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1])
+				ax1.set_xlim(0, ax1.get_xlim()[1])
+				ax1.set_yticklabels([])
+				ax1.set_xticklabels([])
+				ax1.tick_params(which="both", left=0, bottom=0, top=0, right=0)
+				ax1.spines["right"].set_visible(False)
+				ax1.spines["bottom"].set_visible(False)
+				ax1.spines["top"].set_visible(False)
+
+				# get percentile
+				q = np.nanpercentile(s[nburnin:].flatten(), [16, 50, 84])
+				for val in q:
+					ax1.axhline(val, ls="dashed", color="black")
+				text = (
+					labels[i]
+					+ r"$ = {:.2f}^{{+{:.2f}}}_{{-{:.2f}}}$".format(
+						q[1], np.diff(q)[0], np.diff(q)[1]
+					)
+					if labels is not None
+					else r"${:.2f}^{{+{:.2f}}}_{{-{:.2f}}}$".format(
+						q[1], np.diff(q)[1], np.diff(q)[0]
+					)
+				)
+				ax1.text(0.5, 1.0, text, transform=ax1.transAxes, ha="center", va="top")
+
+			figset.append(fig)
+
+		return figset
+
+
 
 def condition(p, b):
     if (p >= b[0]) and (p <= b[1]):

@@ -5,9 +5,11 @@ source_dict = {
         "radec": '4h04m43.07997408s 26d18m56.11868681s', # updated 2022.06.08 based on 2D gaussian fit on the image plane
         "rep_robust": 1.0,
         "distance": 146, # Roccatagliata et al. 2020
+        "cont_nu0": 2.25995129e+11, # Hz
         "PA": 67.2, # from visibility fit
         "incl": 70.6, # from visibility fit
-        "vsys": 7.22, # LSR systemic velocity in km/s; Sai et al. 2020
+        "Mstar": 1.498,
+        "vsys": 7.372, # LSR systemic velocity in km/s; from SLAM fits
         "emission_extent": {"12CO": (-13.0, 27), # updated 2022.06.19 based on inspection on the channel map
                             "13CO": (-2.0, 16), # updated 2022.06.19 based on inspection on the channel map
                             "C18O": (-1.0, 15), # updated 2022.06.19 based on inspection on the channel map
